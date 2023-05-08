@@ -1,93 +1,57 @@
-# MCA-DS-Project-Aastha
-This project is all about blocking websites
-# In this file, we will create a GUI based Website Blocker for Windows and Linux with an option to unblock
-
-# Importing all the modules
 from tkinter import *
-from tkinter.messagebox import *
+import tkinter as tk
+from tkinter import filedialog, Text
+import os
 
-# Setting the file location and the localhost IP address for the GUI
-host_files = {
-    'Windows': r"C:\Windows\System32\drivers\etc\hosts",
-    'Linux': '/etc/host'
-}
-localhost = '127.0.0.1'
+host_path = r"C:\Windows\System32\drivers\etc\hosts"
 
-def block(win):
-    def block_websites(websites):
-        host_file = host_files['Windows']
-        sites_to_block = list(websites.split(' , '))
-
-        # First we will make a copy of the websites you want blocked to a text file called 'blocked_websites.txt'
-
-        with open(host_file, 'r+') as hostfile:
-            content_in_file = hostfile.read()
-
-            for site in sites_to_block:
-                if site not in content_in_file:
-                    hostfile.write(localhost + '\t' + site + '\n')
-                    showinfo('Websites blocked!', message='We have blocked the websites you wanted blocked!')
-                else:
-                    showinfo('Website Already blocked!', 'A website you entered is already blocked')
+ip_address = '127.0.0.1'
+root = Tk()
+root.geometry('500x300')
+root.resizable(0, 0)
+root.title("Website Blocker")
+Label(root, text='WEBSITE BLOCKER', font='arial 20 bold').pack()
+Label(root, text='Aastha', font='arial 20 bold').pack(side=BOTTOM)
+Label(root, text='Enter Website :', font='arial 13 bold').place(x=5, y=60)
+Websites = Text(root, font='arial 10', height='2', width='40', wrap=WORD, padx=5, pady=5)
+Websites.place(x=140, y=60)
 
 
-    blck_wn = Toplevel(win, background='LightBlue')
-    blck_wn.title("Block a website")
-    blck_wn.geometry('300x200')
-    blck_wn.resizable(False, False)
-
-    Label(blck_wn, text='Block websites', background='LightBlue', font=("Georgia", 16)).place(x=80, y=0)
-    Label(blck_wn, text='(Enter the websites separated *only* by \' , \')', background='LightBlue',
-          font=("Times", 13)).place(x=0, y=35)
-    Label(blck_wn, text='Enter the URLs (www.<sitename>.com):', background='LightBlue', font=('Times', 13)).place(
-        x=0, y=70)
-
-
-    submit_btn = Button(blck_wn, text='Submit', bg='MidnightBlue', command=lambda: block_websites(sites.get('1.0',END)))
-    submit_btn.place(x=100, y=160)
+def Blocker():
+    website_lists = Websites.get(1.0, END)
+    Website = list(website_lists.split(","))
+    with open(host_path, 'r+') as host_file:
+        lines = host_file.readlines()
+        for website in Website:
+            if any(website in line for line in lines):
+                Label(root, text='Already Blocked', font='arial 12 bold').place(x=200, y=200)
+                pass
+            else:
+                host_file.write(ip_address + " " + website + '\n')
+                Label(root, text="    Blocked    ", font='arial 12 bold').place(x=230, y=200)
 
 
-def unblock(win):
-    def unblock_websites(websites_to_unblock):
-        host_file = host_files['']
-        with open(host_file, '') as hostfile:
-            content_in_file = hostfile.readlines()
-            hostfile.seek(0)
+block = Button(root, text='Block', font='arial 12 bold', pady=5, command=Blocker, width=6, bg='royal blue1',
+               activebackground='sky blue')
 
-            for line in content_in_file:
-                if not any(site in line for site in websites_to_unblock):
-                    hostfile.write
-
-                hostfile.truncate()
-                with open('blocked_websites.txt', 'r+') as blocked_websites_txt:
-                    file_content = blocked_websites_txt.readlines()
-                    blocked_websites_txt.seek(0)
-
-            for line in file_content:
-                if not any(site in line for site in websites_to_unblock):
-                    blocked_websites_txt.write(line)
-
-                blocked_websites_txt.truncate()
+block.place(x=230, y=150)
 
 
-        Label(unblck_wn, text='Website Blocked!', font=("Times", 13), bg='Aquamarine').place()
+def Unblocker():
+    website_lists = Websites.get(1.0, END)
+    Website = list(website_lists.split(","))
+    with open(host_path, 'r+') as host_file:
+        lines = host_file.readlines()
+        host_file.seek(0)
+        host_file.truncate()
+        for line in lines:
+            if not any(website in line for website in Website):
+                host_file.write(line)
+        Label(root, text="Unblocked", font='arial 12 bold').place(x=230, y=200)
 
-    unblck_wn = Toplevel(win, background='Aquamarine')
-    unblck_wn.title("Block a website")
-    unblck_wn.geometry('285x200')
-    unblck_wn.resizable(False, False)
 
-    Label(unblck_wn, text='Unblock websites', background='Aquamarine', font=("Georgia", 16)).place(x=80, y=0)
-    Label(unblck_wn, text='Select the URLs that you want to unblock:', background='Aquamarine', font=('Times',
-                                                                                                      13)).place(x=0, y=70)
+unblock = Button(root, text='Unblock', font='arial 12 bold', pady=5, command=Unblocker, width=6, bg='royal blue1',
+                 activebackground='sky blue')
+unblock.place(x=300, y=150)
 
-    # Creating a dropdown menu from the textfile to get the sites that are blocked
-    blck_sites_strvar = StringVar(unblck_wn)
-    blck_sites_strvar.set(blck_sites[0])
-    dropdown = OptionMenu(unblck_wn, blck_sites_strvar, *blck_sites)
-    dropdown.config(width=20)
-    dropdown.place(x=60, y=100)
-
-    submit_btn = Button(unblck_wn, text='Submit', bg='MidnightBlue',
-                        command=lambda: unblock_websites(blck_sites_strvar.get()))
-    submit_btn.place(x=100, y=160)
+root.mainloop()
